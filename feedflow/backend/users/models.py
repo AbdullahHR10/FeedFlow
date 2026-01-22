@@ -3,12 +3,15 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q, F
 
+
 def avatar_upload_path(instance, filename):
     return f"avatars/users/{instance.user.id}/{filename}"
+
 
 class User(AbstractUser):
     """Represents a user in the application."""
     pass
+
 
 class Profile(models.Model):
     """Represents a profile in the application."""
@@ -23,6 +26,10 @@ class Profile(models.Model):
         blank=True,
         null=True
     )
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+
 
 class Follow(models.Model):
     """Represents a follow in the application."""
@@ -49,3 +56,6 @@ class Follow(models.Model):
                 name="prevent_self_follow"
             )
         ]
+
+    def __str__(self):
+        return f"{self.follower} → {self.following}"
