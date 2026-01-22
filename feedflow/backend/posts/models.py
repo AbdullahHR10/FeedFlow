@@ -11,6 +11,7 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name="posts"
     )
+    is_edited = models.BooleanField(default=False)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
