@@ -58,6 +58,10 @@ class Follow(models.Model):
                 name="prevent_self_follow"
             )
         ]
+        indexes = [
+            models.Index(fields=["follower"]),
+            models.Index(fields=["following"])
+        ]
 
     def __str__(self):
         return f"{self.follower} → {self.following}"
