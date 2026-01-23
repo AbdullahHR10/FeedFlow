@@ -83,7 +83,12 @@ class Reaction(PostBaseModel):
     )
 
     class Meta:
-        unique_together = ("user", "post")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "post"],
+                name="unique_user_post_reaction"
+            )
+        ]
 
     def __str__(self):
         return f"{self.user} - reaction on post #{self.post_id}"
