@@ -1,17 +1,24 @@
-"""Defines User, Profile and Follow serializers."""
+"""
+Serializers for user-related models.
+
+Includes serializers for:
+- User: public-facing user information
+- Profile: user profile data linked to the authenticated user
+- Follow: follower–following relationships between users
+"""
 from rest_framework import serializers
 from .models import User, Profile, Follow
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """User class serializer."""
+    """Serializer for the User model."""
     class Meta:
         model = User
         fields = ("id", "username")
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    """Profile class serializer."""
+    """Serializer for the Profile model."""
     user = serializers.HiddenField(
         default = serializers.CurrentUserDefault()
     )
@@ -22,7 +29,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """Follow class serializer."""
+    """Serializer for the Follow model."""
     follower = serializers.HiddenField(
         default = serializers.CurrentUserDefault()
     )
@@ -31,4 +38,3 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ("follower", "following", "created_at")
         read_only_fields = ("created_at",)
-
