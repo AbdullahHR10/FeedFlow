@@ -1,4 +1,12 @@
-"""Defines the Post, PostMedia, Reaction and Comment classs."""
+"""
+Database models for post-related tables.
+
+Includes:
+- Post: user-generated posts
+- PostMedia: media files attached to posts
+- Reaction: reactions to posts
+- Comment: user comments on posts
+"""
 from django.db import models
 from django.conf import settings
 from uuid import uuid4
