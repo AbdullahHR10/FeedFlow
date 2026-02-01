@@ -38,3 +38,24 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ("follower", "following", "created_at")
         read_only_fields = ("created_at",)
+
+
+    def validate_following(self, following):
+        """Validate that a user cannot follow themselves or
+        follow the same user twice."""
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return following
+
+        follower = request.user
+
+        if follower == following:
+            raise serializers.ValidationError("You cannot follow yourself.")
+
+        if Follow.objects.filter(
+            follower=follower,
+            following=following
+        ).exists():
+            raise serializers.ValidationError("You already follow this user.")
+
+        return following
