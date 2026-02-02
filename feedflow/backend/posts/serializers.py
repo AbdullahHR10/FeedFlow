@@ -57,6 +57,15 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         return data
 
+    def update(self, instance, validated_data):
+        """Sets is_edited field to be true when the post is updated."""
+        new_content = validated_data.get("content", instance.content)
+
+        if new_content != instance.content:
+            instance.is_edited = True
+
+        return super().update(instance, validated_data)
+
 
 class ReactionSerializer(serializers.ModelSerializer):
     """Serializer for the Reaction model."""
