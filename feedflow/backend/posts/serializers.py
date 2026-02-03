@@ -24,13 +24,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField(read_only=True)
     media = PostMediaSerializer(many=True, read_only=True)
 
-    reactions_count = serializers.IntegerField(read_only=True)
-    like_count = serializers.IntegerField(read_only=True)
-    love_count = serializers.IntegerField(read_only=True)
-    laugh_count = serializers.IntegerField(read_only=True)
-    wow_count = serializers.IntegerField(read_only=True)
-    angry_count = serializers.IntegerField(read_only=True)
-
+    reactions = serializers.SerializerMethodField()
     comments_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -43,14 +37,20 @@ class PostSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "media",
-            "reactions_count",
-            "like_count",
-            "love_count",
-            "laugh_count",
-            "wow_count",
-            "angry_count",
+            "reactions",
             "comments_count"
         )
+
+    def get_reactions(self, obj):
+        return {
+            "total": obj.reactions_count,
+            "like": obj.like_count,
+            "love": obj.love_count,
+            "laugh": obj.laugh_count,
+            "wow": obj.wow_count,
+            "angry": obj.angry_count,
+        }
+
 
 class PostCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating posts."""
