@@ -3,22 +3,27 @@ API endpoints for posts.
 
 Includes:
 - PostViewSet: API endpoints for posts.
+- CommentViewSet: comment on posts.
+- ReactionViewSet: create, update, and delete reactions on posts.
 """
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
 
-from .models import Post, Comment
-from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer
+from .models import Post, Comment, Reaction
+from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, ReactionSerializer
 from .permissions import IsPostAuthor, IsCommentAuthor
 from .utils import with_post_stats
 
 
 class PostViewSet(ModelViewSet):
-    """Defines API endpoints for posts."""
+    """Define API endpoints for posts."""
     permission_classes = [IsAuthenticatedOrReadOnly, IsPostAuthor]
 
     def get_queryset(self):
-        """Returns the posts query set."""
+        """Return the posts query set."""
         return (
             with_post_stats(
                 Post.objects
@@ -28,19 +33,19 @@ class PostViewSet(ModelViewSet):
         )
 
     def get_serializer_class(self):
-        """Selects the proper seralizer for the action."""
+        """Select the proper seralizer for the action."""
         if self.action in ("create", "update", "partial_update"):
             return PostCreateSerializer
 
         return PostSerializer
 
     def perform_update(self, serializer):
-        """Sets is_edited to True on update."""
+        """Set is_edited to True on update."""
         serializer.save(is_edited=True)
 
 
 class CommentViewSet(ModelViewSet):
-    """Defines API endpoints for comments."""
+    """Define API endpoints for comments."""
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsCommentAuthor]
 
@@ -55,3 +60,47 @@ class CommentViewSet(ModelViewSet):
             user=self.request.user,
             post_id=self.kwargs.get("post_pk")
         )
+
+
+class ReactionViewSet(GenericViewSet):
+    """API endpoints for reactions"""
+    serializer_class = ReactionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Limit reactions to the authenticated user."""
+        return Reaction.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        """Handle create/update reaction."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        post_id = self.kwargs.get("post_pk")
+        post = get_object_or_404(Post, pk=post_id)
+
+        reaction, _ = Reaction.objects.update_or_create(
+            user=self.request.user,
+            post=post,
+            defaults={"type": serializer.validated_data["type"]}
+        )
+
+        output_serializer = self.get_serializer(reaction)
+
+        return Response(
+            output_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete the user's reaction from a post."""
+        post_id = self.kwargs.get("post_pk")
+
+        reaction = get_object_or_404(
+            Reaction,
+            user=request.user,
+            post_id=post_id
+        )
+
+        reaction.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
