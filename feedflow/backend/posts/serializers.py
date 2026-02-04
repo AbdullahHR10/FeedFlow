@@ -25,6 +25,7 @@ class PostSerializer(serializers.ModelSerializer):
     media = PostMediaSerializer(many=True, read_only=True)
 
     reactions = serializers.SerializerMethodField()
+    viewer_reaction = serializers.SerializerMethodField()
     comments_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -38,10 +39,12 @@ class PostSerializer(serializers.ModelSerializer):
             "updated_at",
             "media",
             "reactions",
+            "viewer_reaction",
             "comments_count"
         )
 
     def get_reactions(self, obj):
+        """Return the post's reactions."""
         return {
             "total": obj.reactions_count,
             "like": obj.like_count,
@@ -50,6 +53,15 @@ class PostSerializer(serializers.ModelSerializer):
             "wow": obj.wow_count,
             "angry": obj.angry_count,
         }
+
+    def get_viewer_reaction(self, obj):
+        """Return the viewer's reaction"""
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return None
+
+        reaction = obj.reactions.filter(user=request.user).first()
+        return reaction.type if reaction else None
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
@@ -63,14 +75,14 @@ class PostCreateSerializer(serializers.ModelSerializer):
         fields = ("id", "author", "content")
 
     def validate(self, data):
-        """Validates that a post is not empty."""
+        """Validate that a post is not empty."""
         if not data.get("content", "").strip():
             raise serializers.ValidationError("Post content cannot be empty.")
 
         return data
 
     def update(self, instance, validated_data):
-        """Sets is_edited field to be true when the post is updated."""
+        """Set is_edited field to be true when the post is updated."""
         new_content = validated_data.get("content", instance.content)
 
         if new_content != instance.content:
