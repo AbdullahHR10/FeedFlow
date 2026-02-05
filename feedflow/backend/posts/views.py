@@ -24,14 +24,14 @@ from .serializers import (
     ReactionSerializer
 )
 from .permissions import IsPostAuthor, IsCommentAuthor
-from .pagination import CursorPagination
+from .pagination import PostCursorPagination
 from .utils import with_post_stats
 
 
 class PostViewSet(ModelViewSet):
     """Define API endpoints for posts."""
     permission_classes = [IsAuthenticatedOrReadOnly, IsPostAuthor]
-    pagination_class = CursorPagination
+    pagination_class = PostCursorPagination
 
     def get_queryset(self):
         """Return the posts query set."""
