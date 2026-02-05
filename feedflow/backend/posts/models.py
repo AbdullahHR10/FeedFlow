@@ -35,6 +35,7 @@ class Post(PostBaseModel):
     content = models.TextField(blank=True)
 
     def __str__(self):
+        """Return a string representation of the post."""
         return f"Post #{self.id} by {self.author}"
 
 
@@ -93,6 +94,7 @@ class Reaction(PostBaseModel):
         ]
 
     def __str__(self):
+        """Return a string representation of the reaction."""
         return f"{self.user} - reaction on post #{self.post_id}"
 
 
@@ -110,4 +112,5 @@ class Comment(PostBaseModel):
         ordering = ["created_at"]
 
     def __str__(self):
+        """Return a string representation of the comment."""
         return f"{self.user} - comment on post #{self.post_id}"
