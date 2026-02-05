@@ -9,15 +9,9 @@ Includes:
 """
 from django.db import models
 from django.conf import settings
-from uuid import uuid4
-import os
+from .utils import media_upload_path
 
 User = settings.AUTH_USER_MODEL
-
-
-def media_upload_path(instance, filename):
-    ext = os.path.splitext(filename)[1]
-    return f"media/users/{instance.post.author.id}/{uuid4()}{ext}"
 
 
 class PostBaseModel(models.Model):

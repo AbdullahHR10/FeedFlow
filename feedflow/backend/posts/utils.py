@@ -2,10 +2,19 @@
 Utilities for post-related querysets.
 
 Includes:
+- media_upload_path: Defines the path for the post's media.
 - with_post_stats: Adds reaction and comment statistics to Post querysets.
 """
+import os
 from django.db.models import Count, Q
 from .models import ReactionType
+from uuid import uuid4
+
+
+def media_upload_path(instance, filename):
+    """Generate a unique upload path for posts media."""
+    ext = os.path.splitext(filename)[1]
+    return f"media/users/{instance.post.author.id}/{uuid4()}{ext}"
 
 
 def with_post_stats(queryset):
