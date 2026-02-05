@@ -28,6 +28,28 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ("id", "user", "bio", "avatar")
 
 
+class PublicProfileSerializer(serializers.ModelSerializer):
+    """Serializer for the profile public view."""
+    user = UserSerializer(read_only=True)
+
+    followers_count = serializers.IntegerField(read_only=True)
+    following_count = serializers.IntegerField(read_only=True)
+    posts_count = serializers.IntegerField(read_only=True)
+    is_following = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = (
+            "user",
+            "bio",
+            "avatar",
+            "followers_count",
+            "following_count",
+            "posts_count",
+            "is_following"
+        )
+
+
 class FollowSerializer(serializers.ModelSerializer):
     """Serializer for the Follow model."""
     follower = serializers.HiddenField(
