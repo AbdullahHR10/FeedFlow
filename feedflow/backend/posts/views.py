@@ -12,8 +12,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from .models import Post, Comment, Reaction
-from .serializers import PostSerializer, PostCreateSerializer, CommentSerializer, ReactionSerializer
+from .models import Post, PostMedia, Comment, Reaction
+from .serializers import (
+    PostSerializer,
+    PostMediaSerializer,
+    PostCreateSerializer,
+    CommentSerializer,
+    ReactionSerializer
+)
 from .permissions import IsPostAuthor, IsCommentAuthor
 from .utils import with_post_stats
 
@@ -42,6 +48,21 @@ class PostViewSet(ModelViewSet):
     def perform_update(self, serializer):
         """Set is_edited to True on update."""
         serializer.save(is_edited=True)
+
+
+class PostMediaViewSet(ModelViewSet):
+    """Define API endpoints for post media."""
+    serializer_class = PostMediaSerializer
+    permission_classes = [IsAuthenticated, IsPostAuthor]
+
+    def get_queryset(self):
+        """Limit media to the selected post."""
+        return PostMedia.objects.filter(post_id=self.kwargs["post_pk"])
+
+    def perform_create(self, serializer):
+        """Attach media to a post."""
+        post = get_object_or_404(Post, pk=self.kwargs["post_pk"])
+        serializer.save(post=post)
 
 
 class CommentViewSet(ModelViewSet):
