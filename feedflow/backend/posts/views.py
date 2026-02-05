@@ -10,9 +10,11 @@ Includes:
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from users.models import Follow
 from .models import Post, PostMedia, Comment, Reaction
 from .serializers import (
     PostSerializer,
@@ -51,6 +53,26 @@ class PostViewSet(ModelViewSet):
     def perform_update(self, serializer):
         """Set is_edited to True on update."""
         serializer.save(is_edited=True)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="following"
+    )
+    def following(self, request):
+        """Return posts from followed users."""
+        followed_ids = Follow.objects.filter(
+            follower=request.user
+        ).values_list("following_id", flat=True)
+
+        queryset = with_post_stats(
+            Post.objects.filter(author_id__in=followed_ids)
+        )
+
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class PostMediaViewSet(ModelViewSet):
