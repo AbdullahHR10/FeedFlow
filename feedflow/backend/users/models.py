@@ -9,14 +9,8 @@ Includes:
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q, F
-from uuid import uuid4
-import os
 
-
-def avatar_upload_path(instance, filename):
-    """Generate a unique upload path for user avatar images."""
-    ext = os.path.splitext(filename)[1]
-    return f"avatars/users/{instance.user.id}/{uuid4()}{ext}"
+from .utils import avatar_upload_path
 
 
 class User(AbstractUser):
