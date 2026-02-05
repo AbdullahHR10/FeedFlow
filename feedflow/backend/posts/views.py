@@ -3,6 +3,7 @@ API endpoints for posts.
 
 Includes:
 - PostViewSet: API endpoints for posts.
+- PostMediaViewSet: API endpoints for post media.
 - CommentViewSet: comment on posts.
 - ReactionViewSet: create, update, and delete reactions on posts.
 """
