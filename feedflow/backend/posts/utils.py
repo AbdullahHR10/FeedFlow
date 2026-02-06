@@ -7,7 +7,6 @@ Includes:
 """
 import os
 from django.db.models import Count, Q
-from .models import ReactionType
 from uuid import uuid4
 
 
@@ -19,6 +18,7 @@ def media_upload_path(instance, filename):
 
 def with_post_stats(queryset):
     """Annotates a Post queryset with reaction and comment counts."""
+    from .models import ReactionType
     return queryset.annotate(
         reactions_count=Count("reactions", distinct=True),
         like_count=Count(

@@ -8,7 +8,6 @@ Includes:
 import os
 from uuid import uuid4
 from django.db.models import Count, Exists, OuterRef, Value
-from .models import Follow
 
 
 def avatar_upload_path(instance, filename):
@@ -19,6 +18,7 @@ def avatar_upload_path(instance, filename):
 
 def with_profile_stats(queryset, viewer=None):
     """Annotates a Profile queryset with user stats."""
+    from .models import Follow
     qs = queryset.annotate(
         follower_count=Count("user__followers", distinct=True),
         following_count=Count("user__following", distinct=True),
