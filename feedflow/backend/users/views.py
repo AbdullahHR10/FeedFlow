@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from django.shortcuts import get_list_or_404
 from .serializers import (
     UserSerializer,
     PublicProfileSerializer,
@@ -49,10 +48,10 @@ class UserViewSet(ReadOnlyModelViewSet):
 class UserProfileViewSet(ReadOnlyModelViewSet):
     """Define API endpoints for users public profiles."""
     serializer_class = PublicProfileSerializer
-    queryset = Profile.objects.select_related_("user")
+    queryset = Profile.objects.select_related("user")
 
     def get_queryset(self):
-        """Return the user's profile."""
+        """Return public profiles with viewer-related stats."""
         return with_profile_stats(
             super().get_queryset(),
             viewer=self.request.user
@@ -70,7 +69,7 @@ class FollowViewSet(GenericViewSet):
             data={"following": kwargs["user_pk"]},
             context={"request": request}
         )
-        serializer.is_valid(raise_expection=True)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(status=status.HTTP_201_CREATED)
@@ -78,7 +77,6 @@ class FollowViewSet(GenericViewSet):
     def destroy(self, request, *args, **kwargs):
         """Delete a follow between users."""
         Follow.objects.filter(
-            follower=request.user,
             follower=request.user,
             following_id=kwargs["user_pk"]
         ).delete()
