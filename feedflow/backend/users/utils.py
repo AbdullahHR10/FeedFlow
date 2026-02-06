@@ -20,7 +20,7 @@ def with_profile_stats(queryset, viewer=None):
     """Annotates a Profile queryset with user stats."""
     from .models import Follow
     qs = queryset.annotate(
-        follower_count=Count("user__followers", distinct=True),
+        followers_count=Count("user__followers", distinct=True),
         following_count=Count("user__following", distinct=True),
         posts_count=Count("user__posts", distinct=True)
     )
