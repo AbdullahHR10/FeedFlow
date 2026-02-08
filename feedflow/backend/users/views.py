@@ -10,13 +10,18 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework import status
+
+
 
 from .serializers import (
     UserSerializer,
     PublicProfileSerializer,
     FollowSerializer
 )
+from .auth_serializers import SignUpSerializer
 from posts.serializers import PostSerializer
 from .models import User, Profile, Follow
 from posts.models import Post
@@ -43,6 +48,12 @@ class UserViewSet(ReadOnlyModelViewSet):
             context={"request": request}
         )
         return self.get_paginated_response(serializer.data)
+
+
+class SignUpView(CreateAPIView):
+    """Define API endpoint for sign up."""
+    serializer_class = SignUpSerializer
+    permission_classes = [AllowAny]
 
 
 class UserProfileViewSet(ReadOnlyModelViewSet):
